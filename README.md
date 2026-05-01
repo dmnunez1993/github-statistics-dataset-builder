@@ -55,7 +55,7 @@ uv run commands/extract_stats.py REPOS_DIR --output OUTPUT.csv [--email EMAIL ..
 
 | Argument / Option | Required | Description |
 |---|---|---|
-| `REPOS_DIR` | yes | Path to the directory that directly contains the git repositories |
+| `REPOS_DIR` | yes | Root directory to search recursively for git repositories |
 | `--output / -o` | yes | Destination CSV file path |
 | `--email / -e` | no | Author email to include. Repeat for multiple authors. Omit to include all. |
 

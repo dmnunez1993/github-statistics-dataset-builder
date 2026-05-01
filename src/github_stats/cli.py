@@ -90,6 +90,3 @@ def main(
     else:
         df.write_csv(output)
         typer.echo(f"Saved {len(df)} commit(s) to '{output}'.")
-
-    repo_count = df["repo_name"].n_unique()
-    typer.echo(f"Repositories represented in new data: {repo_count}.")

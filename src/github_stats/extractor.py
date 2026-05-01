@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import git
+import typer
 
 from .languages import get_languages_from_files
 
@@ -48,39 +49,68 @@ def extract_repo_stats(
     try:
         repo = git.Repo(repo_path)
     except (git.InvalidGitRepositoryError, git.NoSuchPathError):
+        typer.echo(f"  [skip] '{repo_path}' could not be opened as a git repository.")
         return []
 
     records: list[dict] = []
+    total_commits = 0
+    matched_commits = 0
 
     for commit in repo.iter_commits(all=True):
+        total_commits += 1
         if emails is not None and commit.author.email not in emails:
             continue
+        matched_commits += 1
         records.append(_process_commit(commit))
 
+    if emails is not None:
+        typer.echo(
+            f"  '{repo_path.name}': {matched_commits}/{total_commits} commit(s) matched."
+        )
+    else:
+        typer.echo(f"  '{repo_path.name}': {total_commits} commit(s) found.")
+
     return records
+
+
+def _find_repos(root: Path) -> list[Path]:
+    """Recursively find all git repository roots under *root*.
+
+    Stops descending into a directory once a .git entry is found there.
+    """
+    if (root / ".git").exists():
+        return [root]
+    repos: list[Path] = []
+    try:
+        children = sorted(p for p in root.iterdir() if p.is_dir())
+    except PermissionError:
+        return []
+    for child in children:
+        repos.extend(_find_repos(child))
+    return repos
 
 
 def extract_all_repos(
     repos_dir: Path,
     emails: set[str] | None = None,
 ) -> list[dict]:
-    """Walk *repos_dir* and extract commit stats from every git repository found.
-
-    Each immediate subdirectory of *repos_dir* is treated as a candidate repo.
+    """Recursively discover all git repositories under *repos_dir* and extract
+    commit stats from each one.
 
     Args:
-        repos_dir: Directory that directly contains one or more git repositories.
+        repos_dir: Root directory to search for git repositories.
         emails: Privacy filter — only commits from these author emails are kept.
 
     Returns:
         Combined list of commit records from all discovered repositories.
     """
     all_records: list[dict] = []
+    repos = _find_repos(repos_dir)
+    typer.echo(f"Found {len(repos)} git repository/repositories to scan.")
 
-    for path in sorted(repos_dir.iterdir()):
-        if not path.is_dir():
-            continue
+    for path in repos:
         records = extract_repo_stats(path, emails)
         all_records.extend(records)
 
+    typer.echo(f"Total commits collected: {len(all_records)}.")
     return all_records
