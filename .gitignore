@@ -1,0 +1,31 @@
+# uv
+.venv/
+
+**/*.pyc
+**/__pycache__/
+**/*.pyc
+**/*.sqlite3
+*.kdev4
+**/.kdev4/
+**/media/
+venv/
+**/run/
+logs/
+**/whoosh/
+backend/static/
+**/dbf/
+*.pid
+*.vscode/
+**/test/
+prod/.env
+backend/.env
+
+# Macos
+.DS_Store
+
+# Pyenv
+.python-version
+admin/.husky/_/husky.sh
+
+# Env files
+.env
