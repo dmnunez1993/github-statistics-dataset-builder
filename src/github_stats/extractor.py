@@ -34,7 +34,7 @@ def _process_commit(commit: git.Commit) -> dict:
 
     return {
         "commit_hash": commit.hexsha,
-        "is_merge_commit": parent_count > 1,
+        "is_merge_commit": int(parent_count > 1),
         "parent_count": parent_count,
         "author_name": commit.author.name,
         "author_email": commit.author.email,
@@ -56,8 +56,6 @@ def _sum_language_file_stats(
     totals: dict[str, int] = {}
     for filename, stats in file_stats.items():
         lang = get_language_for_file(filename)
-        if not lang:
-            continue
         totals[lang] = totals.get(lang, 0) + int(stats.get(stat_name, 0))
     return dict(sorted(totals.items()))
 

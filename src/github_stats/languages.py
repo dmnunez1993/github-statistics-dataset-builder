@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
+UNKNOWN_LANGUAGE = "Other"
+
 # Maps lowercase file extensions to canonical language names.
 EXTENSION_TO_LANGUAGE: dict[str, str] = {
     ".py": "Python",
@@ -89,6 +91,7 @@ EXTENSION_TO_LANGUAGE: dict[str, str] = {
     ".proto": "Protocol Buffers",
     ".graphql": "GraphQL",
     ".gql": "GraphQL",
+    ".thrift": "Thrift",
 }
 
 # Filenames (basename, case-insensitive) that map to a language regardless of extension.
@@ -101,22 +104,20 @@ FILENAME_TO_LANGUAGE: dict[str, str] = {
 }
 
 
-def get_language_for_file(filename: str) -> str | None:
-    """Return the language for a given file path, or None if unknown."""
+def get_language_for_file(filename: str) -> str:
+    """Return the language for a given file path."""
     basename = Path(filename).name.lower()
     if basename in FILENAME_TO_LANGUAGE:
         return FILENAME_TO_LANGUAGE[basename]
     ext = Path(filename).suffix.lower()
-    return EXTENSION_TO_LANGUAGE.get(ext)
+    return EXTENSION_TO_LANGUAGE.get(ext, UNKNOWN_LANGUAGE)
 
 
 def get_languages_from_files(filenames: list[str]) -> list[str]:
     """Return a sorted, deduplicated list of languages from a list of file paths."""
     languages: set[str] = set()
     for filename in filenames:
-        lang = get_language_for_file(filename)
-        if lang:
-            languages.add(lang)
+        languages.add(get_language_for_file(filename))
     return sorted(languages)
 
 
@@ -124,7 +125,5 @@ def get_language_counts_from_files(filenames: list[str]) -> dict[str, int]:
     """Return changed-file counts grouped by detected language."""
     counts: Counter[str] = Counter()
     for filename in filenames:
-        lang = get_language_for_file(filename)
-        if lang:
-            counts[lang] += 1
+        counts[get_language_for_file(filename)] += 1
     return dict(sorted(counts.items()))

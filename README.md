@@ -7,7 +7,7 @@ Extract commit-level statistics from a directory of local git repositories and w
 - Scans every git repository inside a given directory
 - Extracts per-commit metrics: lines added/removed, files changed, date, author, message
 - Flags merge commits so merge request activity can be counted from the dataset
-- Detects programming languages touched in each commit from file extensions (~80 languages)
+- Detects programming languages touched in each commit from file extensions (~80 languages), grouping unknown files as `Other`
 - Adds per-language changed-file and line-count summaries for each commit
 - Lists all author emails found across local repositories
 - Privacy filter: restrict output to a specific set of author emails
@@ -18,7 +18,7 @@ Extract commit-level statistics from a directory of local git repositories and w
 | Column | Type | Description |
 |---|---|---|
 | `commit_hash` | `String` | Full Git commit SHA |
-| `is_merge_commit` | `Boolean` | Whether the commit has more than one parent |
+| `is_merge_commit` | `Int64` | `1` when the commit has more than one parent, otherwise `0` |
 | `parent_count` | `Int64` | Number of parent commits |
 | `author_name` | `String` | Git author display name |
 | `author_email` | `String` | Git author email |
@@ -26,7 +26,7 @@ Extract commit-level statistics from a directory of local git repositories and w
 | `lines_added` | `Int64` | Lines inserted in the commit |
 | `lines_removed` | `Int64` | Lines deleted in the commit |
 | `files_changed` | `Int64` | Number of files modified |
-| `languages` | `String` | Pipe-separated languages detected (e.g. `Python\|TypeScript`) |
+| `languages` | `String` | Pipe-separated languages detected (e.g. `Python\|TypeScript\|Other`) |
 | `language_file_counts` | `String` | JSON object of changed-file counts by language (e.g. `{"Python":2}`) |
 | `language_lines_added` | `String` | JSON object of inserted-line counts by language |
 | `language_lines_removed` | `String` | JSON object of deleted-line counts by language |
