@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 
 # Maps lowercase file extensions to canonical language names.
@@ -117,3 +118,13 @@ def get_languages_from_files(filenames: list[str]) -> list[str]:
         if lang:
             languages.add(lang)
     return sorted(languages)
+
+
+def get_language_counts_from_files(filenames: list[str]) -> dict[str, int]:
+    """Return changed-file counts grouped by detected language."""
+    counts: Counter[str] = Counter()
+    for filename in filenames:
+        lang = get_language_for_file(filename)
+        if lang:
+            counts[lang] += 1
+    return dict(sorted(counts.items()))

@@ -6,7 +6,10 @@ Extract commit-level statistics from a directory of local git repositories and w
 
 - Scans every git repository inside a given directory
 - Extracts per-commit metrics: lines added/removed, files changed, date, author, message
+- Flags merge commits so merge request activity can be counted from the dataset
 - Detects programming languages touched in each commit from file extensions (~80 languages)
+- Adds per-language changed-file and line-count summaries for each commit
+- Lists all author emails found across local repositories
 - Privacy filter: restrict output to a specific set of author emails
 - Outputs a single CSV file ready for use with Polars (or any other data tool)
 
@@ -14,6 +17,9 @@ Extract commit-level statistics from a directory of local git repositories and w
 
 | Column | Type | Description |
 |---|---|---|
+| `commit_hash` | `String` | Full Git commit SHA |
+| `is_merge_commit` | `Boolean` | Whether the commit has more than one parent |
+| `parent_count` | `Int64` | Number of parent commits |
 | `author_name` | `String` | Git author display name |
 | `author_email` | `String` | Git author email |
 | `commit_date` | `String` | ISO 8601 UTC timestamp (`YYYY-MM-DDTHH:MM:SS+00:00`) |
@@ -21,6 +27,9 @@ Extract commit-level statistics from a directory of local git repositories and w
 | `lines_removed` | `Int64` | Lines deleted in the commit |
 | `files_changed` | `Int64` | Number of files modified |
 | `languages` | `String` | Pipe-separated languages detected (e.g. `Python\|TypeScript`) |
+| `language_file_counts` | `String` | JSON object of changed-file counts by language (e.g. `{"Python":2}`) |
+| `language_lines_added` | `String` | JSON object of inserted-line counts by language |
+| `language_lines_removed` | `String` | JSON object of deleted-line counts by language |
 
 ## Requirements
 
@@ -45,10 +54,17 @@ This creates a `.venv` and installs all dependencies including `gitpython`, `pol
 uv run github-stats REPOS_DIR --output OUTPUT.csv [--email EMAIL ...]
 ```
 
+List all author emails found in repositories under a folder:
+
+```bash
+uv run github-stats emails REPOS_DIR
+```
+
 ### As a standalone script
 
 ```bash
 uv run commands/extract_stats.py REPOS_DIR --output OUTPUT.csv [--email EMAIL ...]
+uv run commands/extract_stats.py emails REPOS_DIR
 ```
 
 ### Arguments and options
@@ -74,6 +90,12 @@ Analyse all commits (no privacy filter):
 
 ```bash
 uv run github-stats ~/projects/ --output commits.csv
+```
+
+Show every author email available for filtering:
+
+```bash
+uv run github-stats emails ~/projects/
 ```
 
 Load the result with Polars:

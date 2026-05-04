@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-github-stats = "github_stats.cli:app"
+github-stats = "github_stats.cli:run"
 
 [build-system]
 requires = ["hatchling"]

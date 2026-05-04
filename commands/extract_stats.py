@@ -6,8 +6,9 @@ Usage (without installing the package):
 
 Usage (after `uv sync` / `pip install -e .`):
     github-stats <repos_dir> --output <file.csv> [--email addr@example.com ...]
+    github-stats emails <repos_dir>
 """
-from github_stats.cli import app
+from github_stats.cli import run
 
 if __name__ == "__main__":
-    app()
+    run()
