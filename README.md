@@ -1,4 +1,4 @@
-# GitHub Statistics Dataset Builder
+# GitHub Analytics Dataset Builder
 
 Extract commit-level statistics from a directory of local git repositories and write a [Polars](https://pola.rs/)-compatible CSV dataset.
 
