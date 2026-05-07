@@ -36,8 +36,6 @@ def _process_commit(commit: git.Commit) -> dict:
         "commit_hash": commit.hexsha,
         "is_merge_commit": int(parent_count > 1),
         "parent_count": parent_count,
-        "author_name": commit.author.name,
-        "author_email": commit.author.email,
         "commit_date": committed_dt.isoformat(),
         "lines_added": total.get("insertions", 0),
         "lines_removed": total.get("deletions", 0),
@@ -138,6 +136,7 @@ def _find_repos(root: Path) -> list[Path]:
 def extract_all_repos(
     repos_dir: Path,
     emails: set[str] | None = None,
+    exclude_repos: set[str] | None = None,
 ) -> list[dict]:
     """Recursively discover all git repositories under *repos_dir* and extract
     commit stats from each one.
@@ -145,6 +144,7 @@ def extract_all_repos(
     Args:
         repos_dir: Root directory to search for git repositories.
         emails: Privacy filter — only commits from these author emails are kept.
+        exclude_repos: Repository names (directory basenames) to skip.
 
     Returns:
         Combined list of commit records from all discovered repositories.
@@ -154,6 +154,9 @@ def extract_all_repos(
     typer.echo(f"Found {len(repos)} git repository/repositories to scan.")
 
     for path in repos:
+        if exclude_repos and path.name in exclude_repos:
+            typer.echo(f"  [exclude] '{path.name}' skipped.")
+            continue
         records = extract_repo_stats(path, emails)
         all_records.extend(records)
 

@@ -13,8 +13,6 @@ _OUTPUT_COLS = [
     "commit_hash",
     "is_merge_commit",
     "parent_count",
-    "author_name",
-    "author_email",
     "commit_date",
     "lines_added",
     "lines_removed",
@@ -39,14 +37,19 @@ def _extract(
     repos_dir: Path,
     output: Path,
     emails: list[str] | None = None,
+    exclude: list[str] | None = None,
 ) -> None:
     email_set = set(emails) if emails else None
+    exclude_set = set(exclude) if exclude else None
     email_info = (
         f" (filtering to {len(email_set)} email(s))" if email_set else ""
     )
-    typer.echo(f"Scanning repositories in '{repos_dir}'{email_info}...")
+    exclude_info = (
+        f" (excluding {len(exclude_set)} repo(s))" if exclude_set else ""
+    )
+    typer.echo(f"Scanning repositories in '{repos_dir}'{email_info}{exclude_info}...")
 
-    records = extract_all_repos(repos_dir, email_set)
+    records = extract_all_repos(repos_dir, email_set, exclude_set)
 
     if not records:
         typer.echo("No matching commits found.", err=True)
@@ -113,8 +116,19 @@ def extract_command(
             ),
         ),
     ] = None,
+    exclude: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--exclude",
+            "-x",
+            help=(
+                "Repository name (directory basename) to exclude. "
+                "Can be repeated to exclude multiple repositories."
+            ),
+        ),
+    ] = None,
 ) -> None:
-    _extract(repos_dir, output, emails)
+    _extract(repos_dir, output, emails, exclude)
 
 
 @app.command("emails")

@@ -20,8 +20,6 @@ Extract commit-level statistics from a directory of local git repositories and w
 | `commit_hash` | `String` | Full Git commit SHA |
 | `is_merge_commit` | `Int64` | `1` when the commit has more than one parent, otherwise `0` |
 | `parent_count` | `Int64` | Number of parent commits |
-| `author_name` | `String` | Git author display name |
-| `author_email` | `String` | Git author email |
 | `commit_date` | `String` | ISO 8601 UTC timestamp (`YYYY-MM-DDTHH:MM:SS+00:00`) |
 | `lines_added` | `Int64` | Lines inserted in the commit |
 | `lines_removed` | `Int64` | Lines deleted in the commit |
